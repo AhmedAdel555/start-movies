@@ -2,6 +2,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Input from "../components/Input";
 import { useForm, SubmitHandler } from "react-hook-form"
 import { SignUpSchema } from "../validation";
+import { useState } from "react";
+import { firestore, auth, doc, setDoc, createUser } from "../firebase";
+import {useNavigate } from 'react-router-dom';
+import { CircularProgress } from "@mui/material"; 
 
 interface IFormInput {
   username: string
@@ -15,7 +19,45 @@ const Signup = () => {
   const { register, handleSubmit, formState: { errors }} = useForm<IFormInput>({
     resolver: yupResolver(SignUpSchema)
   })
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data)
+
+  const [isLoading, setIsLoading] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    try {
+      // Create user using Firebase Authentication
+      setIsLoading(true); 
+      const { user } = await createUser(auth, data.email, data.password); 
+  
+      // Add user information to Firestore
+      await setDoc(doc(firestore, "users", user.uid), {
+        username: data.username,
+        email: data.email,
+        id:user.uid
+      });
+  
+      console.log("User created successfully!", user);
+      navigate("/signin");
+      
+    } catch (error) {
+      console.error("Error creating user:", error);
+      if (error instanceof Error) {
+        console.log(error.message);
+        if (error.message === "Firebase: Error (auth/email-already-in-use).") {
+          setErrorMessage("Email is already in use. Please try with a different email.");
+        } else {
+          setErrorMessage("An error occurred while creating your account. Please try again later.");
+          
+        }
+      } else {
+        setErrorMessage("An unknown error occurred. Please try again later.");
+        
+      }
+    }finally{
+        setIsLoading(false); 
+    }
+  };
+
 
   return (
     <>
@@ -38,8 +80,15 @@ const Signup = () => {
                        <p className="text-blue-700">{errors.password?.message}</p>
                        <Input type="password" placeholder="confirm password" {...register("confirmPassword")}/>
                        <p className="text-blue-700">{errors.confirmPassword?.message}</p>
-                       <button type="submit" className="bg-blue-800 py-3 text-white font-semibold rounded-md w-full hover:bg-blue-600 transition"
-                   >Sign Up</button>
+                       <div className="flex justify-center">
+                       {isLoading ? (
+                    <CircularProgress color="primary" size="2rem" /> 
+                  ) : (
+                    <button type="submit" className="bg-blue-800 py-3 text-white font-semibold rounded-md w-full hover:bg-blue-600 transition">Sign Up</button>
+                  )}
+                       </div>
+                       
+                       {errorMessage && <div className="text-red-500">{errorMessage}</div>}
                    </form>
               </div>
            </div>
