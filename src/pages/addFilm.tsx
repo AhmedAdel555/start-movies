@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { firestore, setDoc, doc, collection } from "../firebase";
+import { firestore, setDoc, doc, collection, serverTimestamp } from "../firebase";
 import { storage, ref, uploadBytesResumable, getDownloadURL } from "../firebase";
 
 const AddFilmForm = () => {
@@ -14,11 +14,16 @@ const AddFilmForm = () => {
     publisherId: '',
     publisherName: '',
     likes: [],
+    likesNumber:0,
     dislikes: [],
+    dislikesNumber:0,
     savedToWatchLater: [],
+    savedToWatchLaterNumber:0,
     viewers: [],
+    viewersNumber:0,
     ratings: [],
     ratingNumber: 0,
+    publishDate: null 
   });
 
   const [image, setImage] = useState<File | null>(null);
@@ -74,7 +79,13 @@ const AddFilmForm = () => {
   
       const filmsCollectionRef = collection(firestore, "films");
       const filmDocRef = doc(filmsCollectionRef); 
-      await setDoc(filmDocRef, { ...filmData, id: filmDocRef.id, image: imageUrl, video: videoUrl }); 
+      await setDoc(filmDocRef, { 
+        ...filmData, 
+        id: filmDocRef.id, 
+        image: imageUrl, 
+        video: videoUrl,
+        publishDate: serverTimestamp() // Modify this line
+      }); 
       alert('Film added successfully!');
       setFilmData({
         id:'',
@@ -87,11 +98,16 @@ const AddFilmForm = () => {
         publisherId: '',
         publisherName: '',
         likes: [],
-        dislikes: [],
-        savedToWatchLater: [],
-        viewers: [],
+    likesNumber:0,
+    dislikes: [],
+    dislikesNumber:0,
+    savedToWatchLater: [],
+    savedToWatchLaterNumber:0,
+    viewers: [],
+    viewersNumber:0,
         ratings: [],
         ratingNumber: 0,
+        publishDate: null // Modify this line
       });
       setImage(null);
       setVideo(null);
