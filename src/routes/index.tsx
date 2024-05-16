@@ -11,6 +11,8 @@ import GetAndSetData from "../pages/GetDataAndSetIt";
 import GetAndSetData2 from "../pages/GetFilmPaginatition";
 import GetAndSetData3 from "../pages/GetFilmPaginatitionCateogry";
 import Search from "../pages/Search";
+import GetAndSetData4 from "../pages/GetsavedToWatchLaterPagination";
+import CommentBackend from "../pages/Comment";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,7 +25,10 @@ const router = createBrowserRouter(
       <Route path="/test3" element={<GetAndSetData />} />
       <Route path="/test4" element={<GetAndSetData2 />} />
       <Route path="/test5" element={<GetAndSetData3 />} />
+      <Route path="/test6" element={<GetAndSetData4 />} />
       <Route path="/search" element={<Search />} />
+   
+      <Route path="/comment" element={<CommentBackend filmId={"MbOHMcksEX5axhH0poTE"} />} />
     </>
   )
 );

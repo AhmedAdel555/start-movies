@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore, collection, doc, setDoc,getDocs,getDoc ,serverTimestamp,orderBy,query,startAfter,limit,where,deleteDoc,updateDoc,
   arrayUnion,
-  arrayRemove} from "firebase/firestore";
+  arrayRemove,QueryDocumentSnapshot} from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword as createUser, signInWithEmailAndPassword } from "firebase/auth";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
@@ -25,4 +25,4 @@ const storage = getStorage(app);
 
 export { app, analytics, firestore, auth,collection,doc,setDoc, createUser , signInWithEmailAndPassword ,ref,uploadBytesResumable,getDownloadURL,storage,getDocs,getDoc,serverTimestamp,orderBy,query,startAfter,limit,where,deleteDoc,updateDoc,
   arrayUnion,
-  arrayRemove};
+  arrayRemove,QueryDocumentSnapshot};

@@ -148,17 +148,36 @@ const GetAndSetData = () => {
     }
   };
 
+
+  
   const toggleSaveToWatchLater = async (filmId: string, userId: string) => {
     try {
+      // References to the film and user documents
       const filmRef = doc(firestore, 'films', filmId);
+      const userRef = doc(firestore, 'users', userId);
+      
+      // Fetch the film document
       const filmSnapshot = await getDoc(filmRef);
-      if (filmSnapshot.exists()) {
-        const { savedToWatchLater, savedToWatchLaterNumber } = filmSnapshot.data();
+      // Fetch the user document
+      const userSnapshot = await getDoc(userRef);
+      
+      if (filmSnapshot.exists() && userSnapshot.exists()) {
+        const filmData = filmSnapshot.data();
+        const userData = userSnapshot.data();
+        const { savedToWatchLater, savedToWatchLaterNumber } = filmData;
+        
+  
         if (savedToWatchLater.includes(userId)) {
+          // If the film is already saved by the user, remove it from both lists
           await updateDoc(filmRef, {
             savedToWatchLater: arrayRemove(userId),
             savedToWatchLaterNumber: savedToWatchLaterNumber - 1
           });
+          await updateDoc(userRef, {
+            savedToWatchLater: arrayRemove(filmId)
+          });
+  
+          // Update local state
           setFilmsData(prevState => prevState.map(film => {
             if (film.id === filmId) {
               return { ...film, savedToWatchLaterNumber: film.savedToWatchLaterNumber - 1 };
@@ -166,10 +185,16 @@ const GetAndSetData = () => {
             return film;
           }));
         } else {
+          // If the film is not saved by the user, add it to both lists
           await updateDoc(filmRef, {
             savedToWatchLater: arrayUnion(userId),
             savedToWatchLaterNumber: savedToWatchLaterNumber + 1
           });
+          await updateDoc(userRef, {
+            savedToWatchLater: arrayUnion(filmId)
+          });
+  
+          // Update local state
           setFilmsData(prevState => prevState.map(film => {
             if (film.id === filmId) {
               return { ...film, savedToWatchLaterNumber: film.savedToWatchLaterNumber + 1 };
@@ -182,6 +207,7 @@ const GetAndSetData = () => {
       console.error("Error toggling save to watch later:", error);
     }
   };
+  
 
   const toggleViewer = async (filmId: string, userId: string) => {
     try {
@@ -247,15 +273,15 @@ const GetAndSetData = () => {
               {film.name}
               <div>
                 <button style={{marginRight: '10px'}} onClick={() => removeFilmById(film.id)}>Remove</button>
-                <button style={{marginRight: '10px'}} onClick={() => toggleLike(film.id, 'DY3uB1FEdYXU8VnUGZ2EVH0apnn1')}>Like</button>
+                <button style={{marginRight: '10px'}} onClick={() => toggleLike(film.id, 'yc2LyI6UcBhGjO3qgbPeDEm8CLY2')}>Like</button>
                 <span style={{marginRight: '10px'}}>{film.likesNumber}</span>
-                <button style={{marginRight: '10px'}} onClick={() => toggleDislike(film.id, 'DY3uB1FEdYXU8VnUGZ2EVH0apnn1')}>Dislike</button>
+                <button style={{marginRight: '10px'}} onClick={() => toggleDislike(film.id, 'yc2LyI6UcBhGjO3qgbPeDEm8CLY2')}>Dislike</button>
                 <span style={{marginRight: '10px'}}>{film.dislikesNumber}</span>
-                <button style={{marginRight: '10px'}} onClick={() => toggleSaveToWatchLater(film.id, 'DY3uB1FEdYXU8VnUGZ2EVH0apnn1')}>Save to Watch Later</button>
+                <button style={{marginRight: '10px'}} onClick={() => toggleSaveToWatchLater(film.id, 'yc2LyI6UcBhGjO3qgbPeDEm8CLY2')}>Save to Watch Later</button>
                 <span style={{marginRight: '10px'}}>{film.savedToWatchLaterNumber}</span>
-                <button style={{marginRight: '10px'}} onClick={() => toggleViewer(film.id, 'DY3uB1FEdYXU8VnUGZ2EVH0apnn1')}>Add to Viewers</button>
+                <button style={{marginRight: '10px'}} onClick={() => toggleViewer(film.id, 'yc2LyI6UcBhGjO3qgbPeDEm8CLY2')}>Add to Viewers</button>
                 <span style={{marginRight: '10px'}}>{film.viewersNumber}</span>
-                <button style={{marginRight: '10px'}} onClick={() => rateFilm(film.id, 'DY3uB1FEdYXU8VnUGZ2EVH0apnn2', 5)}>Rate 5 stars</button>
+                <button style={{marginRight: '10px'}} onClick={() => rateFilm(film.id, 'yc2LyI6UcBhGjO3qgbPeDEm8CLY2', 5)}>Rate 5 stars</button>
                 <span style={{marginRight: '10px'}}>Average Rating: {film.rateNumber || 0}</span>
               </div>
             </li>

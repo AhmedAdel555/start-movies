@@ -33,7 +33,9 @@ const Signup = () => {
       await setDoc(doc(firestore, "users", user.uid), {
         username: data.username,
         email: data.email,
-        id:user.uid
+        id:user.uid,
+        savedToWatchLater:[],
+        isAdmin:false
       });
   
       console.log("User created successfully!", user);
